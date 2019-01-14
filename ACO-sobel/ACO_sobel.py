@@ -148,7 +148,7 @@ class ACO:
         #decay
         for i in range(len(self.img[1,:])):
             for j in range(len(self.img[:,1])):
-                self.Pheromones[i,j] = (1- self.rho)*self.Pheromones[i,j] + self.delta_tau[i][j]
+                self.Pheromones[i,j] = (1- self.rho)*self.Pheromones[i,j] + self.rho*self.delta_tau[i][j]
                 
     def showImage(self):
         FinalImage=[]
@@ -157,10 +157,10 @@ class ACO:
             lista=[]
             for j in range(0, len(self.img[:,1])):
                 if self.Pheromones[i,j][0]<self.tau:
-                    lista.append(0)
+                    lista.append([65.0,91.0,90.0])
                     
                 else:
-                    lista.append(1)
+                    lista.append([242.0,172.0,155.0])
             FinalImage.append(lista)
                         
         plt.imshow(FinalImage, interpolation='nearest')
