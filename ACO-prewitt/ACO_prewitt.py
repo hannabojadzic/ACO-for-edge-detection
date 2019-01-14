@@ -2,8 +2,21 @@ import numpy
 import random
 import math
 import matplotlib.image as img
-img=img.imread("C:/Users/wetan/Desktop/POOS-dataset/Lenna.png") #input path of desired image
+img=img.imread("Lenna.png") #input path of desired image
 from matplotlib import pyplot as plt
+
+def func1(x, l):
+    return x * l
+
+def func2(x, l):
+    return l * x**2
+    
+def func3(x, l):
+    return math.sin((numpy.pi * x) / (2.0*l))
+    
+def func4(x, l):
+    return numpy.pi * x * math.sin((numpy.pi * x) / (2.0*l)) / l
+
 
 def Convolution(img1, img2):
     sum = 0
@@ -28,7 +41,7 @@ def Prewitt(img):
         #print(A_return)
     return A_return
 class ACO:
-    def __init__(self,img, br_iter,br_ant,br_step,alpha,beta,phi,rho,treshold, tau, lambd):
+    def __init__(self,img, br_iter,br_ant,br_step,alpha,beta,phi,rho,treshold, tau, lambd, f=func1):
         
         
         self.img = img
@@ -66,7 +79,8 @@ class ACO:
             lista = []
             for j in range(len(img[:,1])):
                 if self.SobelM[i,j][0]*numpy.sqrt(len(self.SobelM[i,j])) > treshold:
-                    lista.append(self.SobelM[i,j][0]*lambd)
+                    #lista.append(self.SobelM[i,j][0]*lambd)
+                    lista.append(f(self.SobelM[i,j][0],lambd))
                 else:
                     lista.append(0.0)
             self.Informations.append(lista)
@@ -182,7 +196,7 @@ class ACO:
 #print(len(new_img[:,1]))
 #new_img = np.full((img[:,1]),img[1,:], 5), 7)
 #tau_init=0.1, N=2, L=50, K=5000, alpha=1.0, beta=2.0, phi=0.05, rho=0.1, treshold=0.6
-a = ACO(img,2,5000,50,1.0,2.0,0.05,0.1,0.6,0.1,10)
+a = ACO(img,2,5000,50,1.0,2.0,0.05,0.1,0.6,0.1,10, func1)
 #a = ACO(img, 1,1,1,1,1,1,1,1,1,10)# br_iter,br_ant,br_step,alpha,beta,phi,rho,treshold, tau
 a.run()
 a.showImage()
