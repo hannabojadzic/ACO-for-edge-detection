@@ -2,7 +2,7 @@ import numpy
 import random
 import math
 import matplotlib.image as img
-img=img.imread("C:/Users/wetan/Desktop/POOS-dataset/Lenna.png") #input path of desired image
+img=img.imread("Lenna.png") #input path of desired image
 from matplotlib import pyplot as plt
 
 def Convolution(img1, img2):
@@ -11,22 +11,17 @@ def Convolution(img1, img2):
         for j in range(len(img2[1,:])):
             sum = sum + img1[i,j]*img2[len(img1[1,:])-i-1,len(img2[1,:])-j-1]
     return sum
-    
-def Prewitt(img):
-    Gx1 = numpy.array([ [1.0, 0.0, -1.0], [1.0, 0.0, -1.0],[1.0, 0.0, -1.0]])
-    Gy1 =numpy.array( [ [1.0, 1.0, 1.0], [0.0, 0.0, 0.0],[-1.0, -1.0, -1.0]])
+
+def normalization(img):
     A_return = numpy.copy(img)
     for i in range(1,len(img[1,:])-1):
         #lista = []
         for j in range(1,len(img[:,1])-1):
-            B = numpy.array([[img[i-1, j-1], img[i-1,j], img[i-1, j+1]],[ img[i,j-1], img[i,j], img[i,j+1]],[img[i+1,j-1], img[i+1,j], img[i+1,j+1]]])
-            Gx = Convolution(Gx1,B)
-            Gy = Convolution(Gy1,B)
-            A_return[i,j] = numpy.sqrt(Gx*Gx+Gy*Gy)
-            #lista.append(numpy.sqrt(Gx*Gx+Gy*Gy))
-        #A_return.append(lista)
-        #print(A_return)
+            A_return[i,j] = abs(img[i-1, j-1] - img[i+1,j+1]) + abs(img[i-1,j] - img[i+1,j]) + abs(img[i-1, j+1] - img[i+1,j-1]) + abs(img[i, j-1] - img[i,j+1])
     return A_return
+
+
+
 class ACO:
     def __init__(self,img, br_iter,br_ant,br_step,alpha,beta,phi,rho,treshold, tau, lambd):
         
@@ -58,15 +53,15 @@ class ACO:
             for j in range(len(img[1,:])):
                 lista.append(0.0)
             self.delta_tau.append(lista)
-        #self.SobelM = Sobel(img)
-        self.SobelM = Prewitt(img)
+        self.NormalizationM = normalization(img)
+        #self.SobelM = Prewitt(img)
         self.Informations = []
         
         for i in range(len(img[:,1])):
             lista = []
             for j in range(len(img[:,1])):
-                if self.SobelM[i,j][0]*numpy.sqrt(len(self.SobelM[i,j])) > treshold:
-                    lista.append(self.SobelM[i,j][0]*lambd)
+                if self.NormalizationM[i,j][0]*numpy.sqrt(len(self.NormalizationM[i,j])) > treshold:
+                    lista.append(self.NormalizationM[i,j][0]*lambd)
                 else:
                     lista.append(0.0)
             self.Informations.append(lista)
@@ -148,7 +143,7 @@ class ACO:
         #decay
         for i in range(len(self.img[1,:])):
             for j in range(len(self.img[:,1])):
-                self.Pheromones[i,j] = (1- self.rho)*self.Pheromones[i,j] + self.delta_tau[i][j]
+                self.Pheromones[i,j] = (1- self.rho)*self.Pheromones[i,j] + self.rho*self.delta_tau[i][j]
                 
     def showImage(self):
         FinalImage=[]
@@ -161,6 +156,7 @@ class ACO:
                     
                 else:
                     lista.append([0.0,0.0,0.0])
+                    
             FinalImage.append(lista)
                         
         plt.imshow(FinalImage, interpolation='nearest')

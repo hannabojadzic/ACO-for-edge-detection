@@ -157,10 +157,10 @@ class ACO:
             lista=[]
             for j in range(0, len(self.img[:,1])):
                 if self.Pheromones[i,j][0]<self.tau:
-                    lista.append([65.0,91.0,90.0])
+                    lista.append([1.0,1.0,1.0])
                     
                 else:
-                    lista.append([242.0,172.0,155.0])
+                    lista.append([0.0,0.0,0.0])
             FinalImage.append(lista)
                         
         plt.imshow(FinalImage, interpolation='nearest')
