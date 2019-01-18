@@ -2,12 +2,10 @@ import numpy
 import random
 import math
 import matplotlib.image as img
-img=img.imread("Lenna.png") #input path of desired image
+img=img.imread("Lenna.png") 
 from matplotlib import pyplot as plt
+import matplotlib
 
-#lista.append(self.NormalizationM[i,j][0]*lambd)
-#lista.append(math.sin((numpy.pi * self.NormalizationM[i,j][0]) / (2.0*lambd)))
-#lista.append(lambd* self.NormalizationM[i,j][0]**2)
 
 def func1(x, l):
     return x * l
@@ -19,7 +17,7 @@ def func3(x, l):
     return math.sin((numpy.pi * x) / (2.0*l))
     
 def func4(x, l):
-    return numpy.pi * x * math.sin((numpy.pi * x) / (2.0*l)) / l
+    return math.sin(numpy.pi * x * math.sin((numpy.pi * x) / (l)) / l)
 
 
 def Convolution(img1, img2):
@@ -53,15 +51,12 @@ class ACO:
         self.rho = rho
         self.treshold = treshold
         self.tau = tau
-        self.delta_tau_Matrix=[]
         
         self.Pheromones = numpy.copy(img)
         for i in range(len(img[:,1])):
             #lista = []
             for j in range(len(img[1,:])):
-                #lista.append(tau)
                 self.Pheromones[i,j] = tau
-            #self.Pheromones.append(lista)
     
             
         self.delta_tau = []
@@ -71,7 +66,6 @@ class ACO:
                 lista.append(0.0)
             self.delta_tau.append(lista)
         self.NormalizationM = normalization(img)
-        #self.SobelM = Prewitt(img)
         self.Informations = []
         
         for i in range(len(img[:,1])):
@@ -79,9 +73,6 @@ class ACO:
             for j in range(len(img[:,1])):
                 if self.NormalizationM[i,j][0]*numpy.sqrt(len(self.NormalizationM[i,j])) > treshold:
                     lista.append(f(self.NormalizationM[i,j][0],lambd))
-                    #lista.append(self.NormalizationM[i,j][0]*lambd)
-                    #lista.append(math.sin((numpy.pi * self.NormalizationM[i,j][0]) / (2.0*lambd)))
-                    #lista.append(lambd* self.NormalizationM[i,j][0]**2)
                 else:
                     lista.append(0.0)
             self.Informations.append(lista)
@@ -96,7 +87,6 @@ class ACO:
                     self.local_update(k,j)
         self.global_update()
     def local_update(self,k,l):
-        #kreiranje okoline
         
         i0=self.Routes[k][l][0]
         j0=self.Routes[k][l][1]
@@ -105,7 +95,7 @@ class ACO:
         yMinLim=j0-1
         yMaxLim=j0+1
         
-        if i0==0: #if ant reaches final edge of the image, neighbourhood mustn't consist of those coordinates
+        if i0==0: 
             xMinLim==0
         if j0==0:
             yMinLim==0
@@ -116,7 +106,7 @@ class ACO:
         
         neighbourhood=[]
         
-        for i in range(xMinLim, xMaxLim+1): #creating the neighbourhood
+        for i in range(xMinLim, xMaxLim+1): 
             for j in range(yMinLim, yMaxLim+1):
                 if (i!=i0 or j!=j0):
                     false = 0
@@ -129,7 +119,7 @@ class ACO:
         u=random.random()
         p=0
         
-        if not neighbourhood: #if neighbourhood is empty use the same pixel
+        if not neighbourhood: 
             m=i0
             n=j0
             self.Routes[k].append([m,n])
@@ -138,9 +128,7 @@ class ACO:
                   
             j=0
             brojac=0           
-            while u>p: #testing the neighbourhood and using Roulette Wheel system to pick the new pixel
-                #print(neighbourhood[j][1])
-                #print(self.Pheromones[neighbourhood[j][0]][neighbourhood[j][1]][0])
+            while u>p: 
                 p= p +float(pow(self.Pheromones[neighbourhood[j][0],neighbourhood[j][1]][0],self.alpha))*float(pow(self.Informations[neighbourhood[j][0]][neighbourhood[j][1]], self.beta))
                 
                 j+=1
@@ -148,7 +136,7 @@ class ACO:
                 if j==len(neighbourhood):
                     j=0
                     
-                if brojac >15: #if p is increasing too slow we can randomly choose next pixel
+                if brojac >15: 
                     j=random.randint(0, len(neighbourhood))
                     break
                 
@@ -156,8 +144,8 @@ class ACO:
             m=neighbourhood[j-1][0]
             n=neighbourhood[j-1][1]
                
-        self.Pheromones[m,n]=(1-self.phi)*self.Pheromones[m,n]+self.phi*self.tau #local pheromone update
-        self.delta_tau[m][n]+=self.Informations[m][n]/float(l+1) #we used heuristic information eta to eliminate the noise which is caused by initial random positioning of ants
+        self.Pheromones[m,n]=(1-self.phi)*self.Pheromones[m,n]+self.phi*self.tau 
+        self.delta_tau[m][n]+=self.Informations[m][n]/float(l+1) 
         
     def global_update(self):
         #decay
@@ -181,24 +169,11 @@ class ACO:
                         
         plt.imshow(FinalImage, interpolation='nearest')
         plt.show()
-    
+        matplotlib.image.imsave('normalized_2iter_5000ant_func2.png', FinalImage)
        
         
-       
-       
-        
-    
-                    
-                
-        
- 
-   
-#print(img)
-#new_img = numpy.copy(img)
-#print(len(new_img[:,1]))
-#new_img = np.full((img[:,1]),img[1,:], 5), 7)
+
 #tau_init=0.1, N=2, L=50, K=5000, alpha=1.0, beta=2.0, phi=0.05, rho=0.1, treshold=0.6
 a = ACO(img,2,5000,50,1.0,2.0,0.05,0.1,0.6,0.1,10, func1)
-#a = ACO(img, 1,1,1,1,1,1,1,1,1,10)# br_iter,br_ant,br_step,alpha,beta,phi,rho,treshold, tau
 a.run()
 a.showImage()
